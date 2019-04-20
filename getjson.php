@@ -14,9 +14,9 @@ SELECT DISTINCT ?uri ?wd ?occ ?occlabel WHERE {
 			?sub dc:subject ?uri .
 			?uri rdf:type schema:Person .
 			?uri owl:sameAs ?wd .
+      		FILTER REGEX(?wd,\'wikidata.org\') .
 		} 
 		GROUP BY ?uri
-		#LIMIT 10
 	}
 	SERVICE <https://query.wikidata.org/sparql> { 
 		?wd wdt:P106 ?occ.
@@ -28,9 +28,23 @@ SELECT DISTINCT ?uri ?wd ?occ ?occlabel WHERE {
 
 //echo $sparqlquery;
 
-$url = "https://api.data.adamlink.nl/datasets/AdamNet/all/services/endpoint/sparql?default-graph-uri=&query=" . urlencode($sparqlquery) . "&format=application%2Fsparql-results%2Bjson&timeout=120000&debug=on";
+$url = "https://api.druid.datalegend.net/datasets/adamnet/all/services/endpoint/sparql?query=" . urlencode($sparqlquery) . "";
 
-$json = file_get_contents($url);
+$querylink = "https://druid.datalegend.net/AdamNet/all/sparql/endpoint#query=" . urlencode($sparqlquery) . "&endpoint=https%3A%2F%2Fdruid.datalegend.net%2F_api%2Fdatasets%2FAdamNet%2Fall%2Fservices%2Fendpoint%2Fsparql&requestMethod=POST&outputFormat=table";
+
+
+// Druid does not like url parameters, send accept header instead
+$opts = [
+    "http" => [
+        "method" => "GET",
+        "header" => "Accept: application/sparql-results+json\r\n"
+    ]
+];
+
+$context = stream_context_create($opts);
+
+// Open the file using the HTTP headers set above
+$json = file_get_contents($url, false, $context);
 
 $data = json_decode($json,true);
 

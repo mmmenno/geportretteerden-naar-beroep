@@ -31,23 +31,23 @@ SELECT * WHERE {
 }
 $sparqlquery .= '))} ORDER BY DESC(?start)';
 
-// query might get to long for file_get_contents, do post with curl instead
-$post = [
-    'query' => $sparqlquery,
-    'default-graph-uri' => NULL,
-    'named-graph-uri' => NULL,
-    'format'   => 'application/sparql-results+json'
+$url = "https://api.druid.datalegend.net/datasets/adamnet/all/services/endpoint/sparql?query=" . urlencode($sparqlquery) . "";
+
+$querylink = "https://druid.datalegend.net/AdamNet/all/sparql/endpoint#query=" . urlencode($sparqlquery) . "&endpoint=https%3A%2F%2Fdruid.datalegend.net%2F_api%2Fdatasets%2FAdamNet%2Fall%2Fservices%2Fendpoint%2Fsparql&requestMethod=POST&outputFormat=table";
+
+
+// Druid does not like url parameters, send accept header instead
+$opts = [
+    "http" => [
+        "method" => "GET",
+        "header" => "Accept: application/sparql-results+json\r\n"
+    ]
 ];
 
-$url = "https://api.data.adamlink.nl/datasets/AdamNet/all/services/endpoint/sparql";
+$context = stream_context_create($opts);
 
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
-
-$json = curl_exec($ch);
-
-curl_close($ch);
+// Open the file using the HTTP headers set above
+$json = file_get_contents($url, false, $context);
 
 $data = json_decode($json,true);
 
