@@ -16,6 +16,7 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT * WHERE {
   ?pic dc:subject ?person . 
   MINUS { ?pic void:inDataset <https://data.adamlink.nl/am/amcollect/> .}
+  MINUS { ?pic void:inDataset <https://data.adamlink.nl/oba/amcat/> .}
   ?person skos:prefLabel ?name .
   OPTIONAL {?pic sem:hasBeginTimeStamp ?start .}
   OPTIONAL {?pic dc:date ?datumstring .}
