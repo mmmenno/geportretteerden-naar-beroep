@@ -15,6 +15,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 SELECT * WHERE {
   ?pic dc:subject ?person . 
+  MINUS { ?pic void:inDataset <https://data.adamlink.nl/am/amcollect/> .}
   ?person skos:prefLabel ?name .
   OPTIONAL {?pic sem:hasBeginTimeStamp ?start .}
   OPTIONAL {?pic dc:date ?datumstring .}
